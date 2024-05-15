@@ -8,6 +8,8 @@ class ObjectRemovalDetector:
         self.initial_frame = None
         self.initial_histogram = None
         self.histogram_threshold = 0.2
+        self.objectImages = []
+        self.rectangles = [[[51, 96], [130, 96], [130, 316], [51, 316]], [[285, 102], [357, 102], [357, 316], [285, 316]]]
 
     def set_initial_frame(self, frame):
         """
@@ -18,9 +20,40 @@ class ObjectRemovalDetector:
         """
         if self.initial_frame is None:
             self.initial_frame = frame.copy()
+            self.objectImages = self.crop_object_images(self.initial_frame, self.rectangles)
 
         # Compute histogram of initial frame
         self.initial_histogram = self.compute_histogram(frame)
+
+    # Function to draw rectangles on the frame based on given points
+    def draw_rectangles(self, frame):
+        for points in self.rectangles:
+            # Convert points to numpy array
+            points = np.array(points)
+            
+            # Draw the rectangle on the frame
+            cv2.polylines(frame, [points], isClosed=True, color=(0, 255, 0), thickness=2)
+
+    # Function to construct rectangles from 4 points and crop object images
+    def crop_object_images(self, frame, rectangles):
+        object_images = []
+        for points in rectangles:
+            # Convert the points to a numpy array
+            points = np.array(points)
+            
+            # Find the minimum bounding rectangle (MBR)
+            rect = cv2.boundingRect(points)
+            
+            # Extract rectangle coordinates
+            x, y, width, height = rect
+            
+            # Crop the object image from the frame
+            object_image = frame[y:y+height, x:x+width]
+            
+            # Append the cropped object image to the list
+            object_images.append(object_image)
+        
+        return object_images
 
     def plotHistogram(self, hist):
         # Plotting the histogram

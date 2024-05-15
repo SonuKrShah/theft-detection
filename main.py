@@ -14,9 +14,21 @@ def main():
         if not ret:
             break
         
-        # Set initial frame
+        # object_detector.draw_rectangles(frame)
+        # cv2.imshow("First", frame)
+        # cv2.waitKey(0)
+
+        # return
+        
+        # Set initial frame and fill the object images
         if object_detector.initial_frame is None:
             object_detector.set_initial_frame(frame)
+
+        # Display all the images in objectImages
+        # for idx, object in enumerate(object_detector.objectImages):
+        #     cv2.imshow(f"Display{idx}", object)
+
+        # cv2.waitKey(0)
         
         # Detect object removal
         if object_detector.detect_object_removal(frame):
