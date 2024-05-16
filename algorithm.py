@@ -6,9 +6,10 @@ class ObjectRemovalDetector:
     def __init__(self):
         # Initialize member variables
         self.initial_frame = None
-        self.initial_histogram = None
-        self.histogram_threshold = 0.2
+        self.initial_histogram = []
+        self.histogram_threshold = 0.65
         self.objectImages = []
+        # self.rectangles = [[[51, 96], [130, 96], [130, 316], [51, 316]]]
         self.rectangles = [[[51, 96], [130, 96], [130, 316], [51, 316]], [[285, 102], [357, 102], [357, 316], [285, 316]]]
 
     def set_initial_frame(self, frame):
@@ -23,7 +24,7 @@ class ObjectRemovalDetector:
             self.objectImages = self.crop_object_images(self.initial_frame, self.rectangles)
 
         # Compute histogram of initial frame
-        self.initial_histogram = self.compute_histogram(frame)
+        # self.initial_histogram = self.compute_histogram(frame)
 
     # Function to draw rectangles on the frame based on given points
     def draw_rectangles(self, frame):
@@ -53,6 +54,10 @@ class ObjectRemovalDetector:
             # Append the cropped object image to the list
             object_images.append(object_image)
         
+        # After the object images have been cropped, compute the histograms for each of the object images and store them in initial_histogram
+        for idx, object in enumerate(object_images):
+            self.initial_histogram.append(self.compute_histogram(object))
+            # self.plotHistogram(self.initial_histogram[idx])
         return object_images
 
     def plotHistogram(self, hist):
@@ -122,18 +127,34 @@ class ObjectRemovalDetector:
         Returns:
             Boolean indicating whether object removal is detected.
         """
+        # Generate the rectangles from the current frame.
+        currentRectangles = self.crop_object_images(frame, self.rectangles)
+
+        # For each of the rectangles, in the current frame, compute the histogram and compare with the initial frame
+        for idx, object in enumerate(currentRectangles):
+            # cv2.imshow("OBject 1", object)
+            # cv2.imshow("Ojbect 2", self.objectImages[idx])
+
+            # cv2.waitKey(0)
+            objHistogram = self.compute_histogram(object)
+            histogram_difference = self.compare_histograms(self.initial_histogram[idx], objHistogram)
+            # Check if histogram difference exceeds threshold
+            # print(f"Histogram distance: {idx}: {histogram_difference}")
+
+            if histogram_difference > self.histogram_threshold:
+                print(f"Object {idx+1} removed")
+                # return True
+            
+
+
         # Compute histogram of current frame
-        current_histogram = self.compute_histogram(frame)
+        # current_histogram = self.compute_histogram(frame)
         
         
         # Compare histograms using histogram intersection
-        histogram_difference = self.compare_histograms(current_histogram, self.initial_histogram)
+        # histogram_difference = self.compare_histograms(current_histogram, self.initial_histogram)
 
-        print("Histogram distance: ", histogram_difference)
+        # print("Histogram distance: ", histogram_difference)
+        return False
         
-        # Check if histogram difference exceeds threshold
-        if histogram_difference > self.histogram_threshold:
-            return True
-        else:
-            return False
 

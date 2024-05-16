@@ -19,6 +19,8 @@ def main():
         # cv2.waitKey(0)
 
         # return
+
+   
         
         # Set initial frame and fill the object images
         if object_detector.initial_frame is None:
@@ -31,13 +33,14 @@ def main():
         # cv2.waitKey(0)
         
         # Detect object removal
-        if object_detector.detect_object_removal(frame):
+        object_detector.detect_object_removal(frame)
             # Potential object removal detected
-            print("Object removal detected!")
+            # print("Object removal detected!")
         
         # Display the frame
+        object_detector.draw_rectangles(frame)
         cv2.imshow('Frame', frame)
-        
+    
         # Break the loop if 'q' is pressed
         if cv2.waitKey(30) & 0xFF == ord('q'):
             break
